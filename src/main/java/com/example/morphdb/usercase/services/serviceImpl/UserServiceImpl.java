@@ -3,18 +3,18 @@ package com.example.morphdb.usercase.services.serviceImpl;
 import com.example.morphdb.domain.entity.User;
 import com.example.morphdb.inftrastructure.Exceptions.CustomNotFoundException;
 import com.example.morphdb.inftrastructure.Exceptions.ResourceNotFoundException;
-import com.example.morphdb.inftrastructure.configuration.AuthUserService;
 import com.example.morphdb.inftrastructure.configuration.JwtService;
 import com.example.morphdb.inftrastructure.persistence.daoimpl.UserDaoImpl;
 import com.example.morphdb.usercase.payload.request.AuthRequest;
 import com.example.morphdb.usercase.payload.request.RegisterRequest;
+import com.example.morphdb.usercase.payload.request.UpdateUserRequest;
 import com.example.morphdb.usercase.payload.response.ApiResponse;
 import com.example.morphdb.usercase.payload.response.LoginResponse;
 import com.example.morphdb.usercase.payload.response.RegistrationResponse;
 import com.example.morphdb.usercase.services.UserService;
+import com.example.morphdb.utils.UserUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.websocket.AuthenticationException;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
 
-    private final AuthUserService authUserService;
+    private final UserUtil userUtil;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -51,13 +51,13 @@ public class UserServiceImpl implements UserService {
             auth = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(authRequest
                             .getEmail(), authRequest.getPassword()));
-        }catch (org.springframework.security.core.AuthenticationException ex) {
+        } catch (org.springframework.security.core.AuthenticationException ex) {
             log.error(ex.getMessage());
             throw new ResourceNotFoundException("Invalid username or password");
         }
         SecurityContextHolder.getContext().setAuthentication(auth);
         User appUserEntity = userDao.findUserByEmail(authRequest.getEmail());
-        if(appUserEntity == null){
+        if (appUserEntity == null) {
             throw new CustomNotFoundException("User does not exist");
         }
         String token = "Bearer " + jwtService
@@ -73,6 +73,14 @@ public class UserServiceImpl implements UserService {
         User newUser = modelMapper.map(registerRequest, User.class);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userDao.saveRecord(newUser);
+        RegistrationResponse data = new RegistrationResponse(newUser.getFirstName(), newUser.getLastName(), newUser.getEmail(), newUser.getPassword());
+        return new ApiResponse<>("success", LocalDateTime.now(), data);
+    }
+
+    @Override
+    public ApiResponse<?> updateUser(UpdateUserRequest updateUserRequest) {
+        User newUser = userDao.findUserByEmail(userUtil.getAuthenticatedUserEmail());
+        userDao.saveRecord(userUtil.updateUserMapper(updateUserRequest, newUser));
         RegistrationResponse data = new RegistrationResponse(newUser.getFirstName(), newUser.getLastName(), newUser.getEmail(), newUser.getPassword());
         return new ApiResponse<>("success", LocalDateTime.now(), data);
     }
