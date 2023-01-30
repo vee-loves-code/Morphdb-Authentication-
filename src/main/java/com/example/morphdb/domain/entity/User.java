@@ -17,10 +17,10 @@ public class User extends BaseClass{
     @Column(nullable = false,columnDefinition = "VARCHAR(100)")
     private String firstName;
 
-    @Column(unique = true,columnDefinition = "VARCHAR(100)")
+    @Column(columnDefinition = "VARCHAR(100)")
     private String lastName;
 
-    @Column(unique = true,nullable = false,columnDefinition = "VARCHAR(100)")
+    @Column(unique = true, nullable = false, columnDefinition = "VARCHAR(100)")
     private String email;
 
     @Column(name = "password",nullable = false)

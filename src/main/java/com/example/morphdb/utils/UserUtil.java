@@ -3,6 +3,7 @@ package com.example.morphdb.utils;
 import com.example.morphdb.domain.entity.User;
 import com.example.morphdb.usercase.payload.request.UpdateUserRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;

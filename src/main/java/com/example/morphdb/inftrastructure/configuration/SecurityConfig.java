@@ -31,14 +31,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().authorizeRequests().antMatchers("/api/v1/auth/**", "/api/v1/register","/swagger-ui/index.html#").permitAll()
+        http.cors().and().csrf().disable().authorizeRequests().antMatchers( "/api/v1/register","/swagger-ui/index.html#","/api/v1/auth/login").permitAll()
                 .and().authorizeRequests()
-                .antMatchers("/api/**").authenticated().and()
+                .antMatchers("/api/v1/auth/**").authenticated().and()
                 .exceptionHandling().and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout()
                 .logoutUrl("/api/v1/logout")
-                .logoutSuccessUrl("/api/v1/login")
+                .logoutSuccessUrl("/api/v1/auth/login")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID");
 
